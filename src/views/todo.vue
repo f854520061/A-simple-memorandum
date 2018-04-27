@@ -11,21 +11,23 @@
           maxlength="30"
         />
         <div class="recently_todo_list">
+           <div class="recently_add">
+            <img src="../assets/add.png"/>
+            <span @click="launch">最近添加</span>
+            <ul>
+              <li @click="test" v-for="t in recently_add_todo" :key="t.id" :data-id="t.id">{{t.content}}</li>
+              <router-link to="/my/Todo_list?name=recently_add">
+              <li>更多 ></li>
+              </router-link>
+            </ul>
+          </div>
           <div class="recently_finish">
-            <img src="../assets/finish.png"/>
+            <img src="../assets/fini.png"/>
             <span @click="launch">最近完成</span>
             <ul>
               <li>1</li>
               <li>1</li>
               <li>我奥斯卡里堆满了我妈克里斯没处理完我哦爱死你了库存立刻马上没得嘛</li>
-              <li>更多 ></li>
-            </ul>
-          </div>
-          <div class="recently_add">
-            <img src="../assets/add.png"/>
-            <span @click="launch">最近添加</span>
-            <ul>
-              <li v-for="t in recently_add_todo" :key="t.id">{{t.content}}</li>
               <li>更多 ></li>
             </ul>
           </div>
@@ -86,76 +88,132 @@ export default {
       }
       return "" + time;
     }
-    var h = document.documentElement.clientHeight,
-      mybody = document.getElementsByTagName("body")[0];
-    mybody.style.height = h + "px";
-    //返回角度
-    //根据起点和终点返回方向 1：向上，2：向下，3：向左，4：向右,0：未滑动
-    //滑动处理
-    var startX, startY;
-    mybody.addEventListener(
-      "touchstart",
-      ev => {
-        // ev.preventDefault();
-        startX = ev.touches[0].pageX;
-        startY = ev.touches[0].pageY;
-      },
-      false
-    );
-    mybody.addEventListener(
-      "touchend",
-      ev => {
-        // ev.preventDefault();
-        var endX, endY;
-        endX = ev.changedTouches[0].pageX;
-        endY = ev.changedTouches[0].pageY;
-        var direction = GetSlideDirection(startX, startY, endX, endY);
-        switch (direction) {
-          case 0:
-            break;
-          case 1:
-            console.log("向上");
-            break;
-          case 2:
-            console.log("向下");
-            break;
-          case 3:
-            console.log("向左");
-            break;
-          case 4:
-            var Input_Dom = document.getElementsByClassName("entry_text")[0];
-            if (Input_Dom) {//防止切换到my路由时出错
-              if (Input_Dom.value) {//判断Input是否有值
-                new Promise((reslove, reject) => {
-                  var d = new Date();
-                  var nowTime =
-                    d.getFullYear() +
-                    "-" +
-                    (parseInt(d.getMonth()) + 1) +
-                    "-" +
-                    d.getDate() +
-                    " " +
-                    formatTime(d.getHours()) +
-                    ":" +
-                    formatTime(d.getMinutes()) +
-                    ":" +
-                    formatTime(d.getSeconds()); //设置新增代办todo开始时间
-                  var nowTodo = Input_Dom.value + ">" + nowTime; //用>做分隔，格式为：todo>开始时间
-                  this.addTodo(nowTodo);
-                  reslove(nowTodo);
-                }).then(value => {
-                  Input_Dom.value = "";
-                });
-              }
-            }
-            break;
-          default:
+
+    function setEventListener(dom, callback) {//为指定Dom元素添加监听事件
+      var startX, startY;
+      dom.addEventListener(
+        "touchstart",
+        ev => {
+          // ev.preventDefault();
+          startX = ev.touches[0].pageX;
+          startY = ev.touches[0].pageY;
+        },
+        false
+      );
+      dom.addEventListener(
+        "touchend",
+        ev => {
+          // ev.preventDefault();
+          var endX, endY;
+          endX = ev.changedTouches[0].pageX;
+          endY = ev.changedTouches[0].pageY;
+          var direction = GetSlideDirection(startX, startY, endX, endY);
+          //返回角度
+          //根据起点和终点返回方向 1：向上，2：向下，3：向左，4：向右,0：未滑动
+          //滑动处理
+          //判断客户端为PC还是移动端
+          switch (direction) {
+            case 0:
+              break;
+            case 1:
+              console.log("向上");
+              break;
+            case 2:
+              console.log("向下");
+              break;
+            case 3:
+              console.log("向左");
+              break;
+            case 4:
+              callback();
+              break;
+            default:
+          }
+        },
+        false
+      );
+    }
+    var input = document.getElementsByTagName("input")[0];
+
+    var sUserAgent = navigator.userAgent.toLowerCase();
+    var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+    var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+    var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+    var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+    var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+    var bIsAndroid = sUserAgent.match(/android/i) == "android";
+    var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+    var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+    if (
+      bIsIpad ||
+      bIsIphoneOs ||
+      bIsMidp ||
+      bIsUc7 ||
+      bIsUc ||
+      bIsAndroid ||
+      bIsCE ||
+      bIsWM
+    ) {
+      setEventListener(input, () => {
+        var Input_Dom = document.getElementsByClassName("entry_text")[0];
+        if (Input_Dom.value) {
+          //判断Input是否有值
+          new Promise((reslove, reject) => {
+            var d = new Date();
+            var nowTime =
+              d.getFullYear() +
+              "-" +
+              (parseInt(d.getMonth()) + 1) +
+              "-" +
+              d.getDate() +
+              " " +
+              formatTime(d.getHours()) +
+              ":" +
+              formatTime(d.getMinutes()) +
+              ":" +
+              formatTime(d.getSeconds()); //设置新增代办todo开始时间
+            var nowTodo = Input_Dom.value + ">" + nowTime; //用>做分隔，格式为：todo>开始时间
+            this.addTodo(nowTodo);
+            reslove(nowTodo);
+          }).then(value => {
+            Input_Dom.value = "";
+          });
         }
-      },
-      false
-    );
+      });
+
+      setEventListener(input, () => {
+        var Input_Dom = document.getElementsByClassName("entry_text")[0];
+        if (Input_Dom.value) {
+          //判断Input是否有值
+          new Promise((reslove, reject) => {
+            var d = new Date();
+            var nowTime =
+              d.getFullYear() +
+              "-" +
+              (parseInt(d.getMonth()) + 1) +
+              "-" +
+              d.getDate() +
+              " " +
+              formatTime(d.getHours()) +
+              ":" +
+              formatTime(d.getMinutes()) +
+              ":" +
+              formatTime(d.getSeconds()); //设置新增代办todo开始时间
+            var nowTodo = Input_Dom.value + ">" + nowTime; //用>做分隔，格式为：todo>开始时间
+            this.addTodo(nowTodo);
+            reslove(nowTodo);
+          }).then(value => {
+            Input_Dom.value = "";
+          });
+        }
+      });
+    } else {
+    }
   },
   methods: {
+    test(e) {
+      console.log(e);
+    },
     launch(e) {
       let height =
         this.GetCurrentStyle(e.target.parentNode.lastChild, "height") == "0px"
@@ -202,9 +260,6 @@ export default {
       localStorage.setItem("Agency_todo", oldTodo + todo + "|");
       this.recently_add_todo = this.get_recently_add();
     }
-  },
-  beforeRouteLeave(to,from,next){
-    next()
   },
   computed: {}
 };
@@ -265,7 +320,7 @@ export default {
     margin-bottom: 2rem;
     width: 65%;
     height: 2.5rem;
-    font-size: 0.8rem;
+    font-size: 0.8rem !important;
   }
   .recently_todo_list > div > img {
     width: 2.5rem;
@@ -282,7 +337,7 @@ export default {
     top: 2.9rem;
   }
 
-  .recently_todo_list > div > ul > li {
+  .recently_todo_list > div > ul li {
     font-size: 0.9rem;
   }
 }
@@ -311,7 +366,7 @@ export default {
     line-height: 3.5rem;
     padding: 0.6rem;
   }
-  .recently_todo_list > div > ul > li {
+  .recently_todo_list > div > ul li {
     font-size: 1rem;
   }
 }
@@ -334,7 +389,6 @@ export default {
 }
 .recently_todo_list > div {
   flex-wrap: wrap;
-  cursor: pointer;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -348,7 +402,11 @@ export default {
   height: 10rem;
 }
 
-.recently_todo_list > div > ul > li {
+.recently_todo_list > div > ul a {
+  text-decoration: none;
+}
+
+.recently_todo_list > div > ul li {
   width: 100%;
   height: 1.5rem;
   margin-bottom: 0.5rem;

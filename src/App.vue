@@ -1,7 +1,9 @@
 <template>
   <div id="#app">
+    <keep-alive>
       <router-view/>
-      <div class="footer_info">
+    </keep-alive>
+      <div class="footer_info" v-show="isShow">
         <div class="todo" @click="onSkip" data-type="todo">
           <img src="./assets/todo.png"/>
           <span>备忘录</span>
@@ -18,54 +20,42 @@
 export default {
   name: "App",
   data() {
-    return {};
+    return {
+      isShow:true,
+    };
+  },
+  mounted() {
+    this.$router.push('/');
+  },
+  updated(){
+    if(location.href.indexOf('/my/Todo_list')>=0){
+      this.isShow=false;
+    }else{
+      this.isShow=true;
+    }
   },
   methods: {
-    launch(e) {
-      let height =
-        this.GetCurrentStyle(e.target.parentNode.lastChild, "height") == "0px"
-          ? "10rem"
-          : "0px";
-      e.target.parentNode.lastChild.style.height = height;
-    },
-    onSkip(e) {//路由跳转
+    onSkip(e) {
+      //路由跳转
       var type = "";
       if (e.target.className == "") {
         type = e.target.parentNode.dataset.type;
       } else {
         type = e.target.dataset.type;
       }
-      if (
-        (location.pathname == "/" && type == "todo") ||
-        (location.pathname == "/my" && type == "my")
-      ) {//防止重复渲染页面
-      } else {
-        switch (type) {
-          case "todo":
-            this.$router.push({ path: "/" });
-            // location.reload();
-            break;
+      switch (type) {
+        case "todo":
+          this.$router.push({ path: "/" });
+          // location.reload();
+          break;
 
-          case "my":
-            this.$router.push({ path: "/my" });
-            break;
-          default:
-            break;
-        }
+        case "my":
+          this.$router.push({ path: "/my" });
+          break;
+        default:
+          break;
       }
     },
-    GetCurrentStyle(obj, prop) {
-      //拿取CSS中的样式
-      var propprop;
-      if (obj.currentStyle) {
-        return obj.currentStyle[prop];
-      } else if (window.getComputedStyle) {
-        propprop = prop.replace(/([A-Z])/g, "-$1");
-        propprop = prop.toLowerCase();
-        return document.defaultView.getComputedStyle(obj, null)[prop];
-      }
-      return null;
-    }
   }
 };
 </script>
@@ -88,7 +78,6 @@ export default {
   overflow: hidden;
 }
 .footer_info {
-  cursor: pointer;
   user-select: none;
   position: fixed;
   width: 100%;
