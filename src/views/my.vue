@@ -9,11 +9,11 @@
             </div>
         </div>
         <ul class="todo_list">
-            <li data-id='1'>待办任务</li>
-            <li data-id='2'>已完成任务</li>
+            <li data-id='1' @click="onSkip">待办任务</li>
+            <li data-id='2' @click="onSkip">已完成任务</li>
             <li data-id='3'>已删除任务</li>
-            <li data-id='4' @click=" onSkip">最近添加任务</li>
-            <li data-id='5'>最近完成任务</li>
+            <li data-id='4' @click="onSkip">最近添加任务</li>
+            <li data-id='5' @click="onSkip">最近完成任务</li>
             <li data-id='6'>最近删除任务</li>
         </ul>
       </div>
@@ -23,43 +23,70 @@
 
 <script>
 export default {
-  name: 'my',
-  data () {
+  name: "my",
+  data() {
     return {
-      msg: 'Welcome to Your Vue.js App',
-      isShow:false
+      msg: "Welcome to Your Vue.js App",
+      isShow: false
+    };
+  },
+  mounted() {
+    this.isShow = true;
+  },
+  updated() {
+    if (location.href.indexOf("/my/Todo_list") >= 0) {
+      this.isShow = false;
+    } else {
+      this.isShow = true;
     }
   },
-  mounted(){
-      this.isShow=true;
-  },
-  updated(){
-    if(location.href.indexOf('/my/Todo_list')>=0){
-      this.isShow=false;
-    }else{
-      this.isShow=true;
-    }
-  },
-  methods:{
-      onSkip(e){
-          this.$router.push({path:'/my/Todo_list',query:{name:'recently_add'}});
+  methods: {
+    onSkip(e) {
+      switch (e.target.dataset.id) {
+        case "1":
+          this.$router.push({
+            path: "/my/Todo_list",
+            query: { name: "Agency_todo" }
+          });
+          break;
+        case "2":
+          this.$router.push({
+            path: "/my/Todo_list",
+            query: { name: "Finish_todo" }
+          });
+          break;
+        case "4":
+          this.$router.push({
+            path: "/my/Todo_list",
+            query: { name: "recently_add" }
+          });
+          break;
+        case "5":
+          this.$router.push({
+            path: "/my/Todo_list",
+            query: { name: "recently_fin" }
+          });
+          break;
+        default:
+          break;
       }
+    }
   },
-  beforeRouteLeave(to,from,next){
-    next()
-  },
-}
+  beforeRouteLeave(to, from, next) {
+    next();
+  }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.All_content{
-    width: 100%;
-    position: absolute;
-    top:0;
-    bottom:3.5rem;
-    overflow-x: hidden;
-    overflow-y: scroll;
+.All_content {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  bottom: 3.5rem;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 .All_content::-webkit-scrollbar {
   width: 0rem;
@@ -78,49 +105,48 @@ export default {
   border-radius: 0;
   background: rgba(0, 0, 0, 0.1);
 }
-.top_header{
-    width: 100%;
-    height: 20rem;
-    background-color: orange;
-    display: flex;
-    flex-direction: column;
+.top_header {
+  width: 100%;
+  height: 20rem;
+  background-color: orange;
+  display: flex;
+  flex-direction: column;
 }
-.top_header>img{
-    width: 2rem;
-    height: 1.5rem;
-    position: absolute;
-    right: 0.4rem;
-    top:0.5rem;
+.top_header > img {
+  width: 2rem;
+  height: 1.5rem;
+  position: absolute;
+  right: 0.4rem;
+  top: 0.5rem;
 }
-.top_header>.head{
-    display: flex;
-    flex-direction: column;
-    width: 5rem;
-    height: 5rem;
-    margin: auto;
+.top_header > .head {
+  display: flex;
+  flex-direction: column;
+  width: 5rem;
+  height: 5rem;
+  margin: auto;
 }
-.top_header>.head>img{
-    width: 5rem;
-    height: 5rem;
+.top_header > .head > img {
+  width: 5rem;
+  height: 5rem;
 }
-.top_header>.head>.name{
-    text-align: center;
+.top_header > .head > .name {
+  text-align: center;
 }
-.todo_list{
-    width: 100%;
-    height: auto;
-    list-style: none;
-    overflow: hidden;
-    cursor: pointer;
+.todo_list {
+  width: 100%;
+  height: auto;
+  list-style: none;
+  overflow: hidden;
 }
-.todo_list>li{
-    width: 100%;
-    height: 2.5rem;
-    line-height: 2.5rem;
-    padding:0 0.5rem; 
-    background-color:#eee;
-    border-bottom:1px solid #ccc; 
-    color: #333;
-    letter-spacing: 0.1rem;
+.todo_list > li {
+  width: 100%;
+  height: 2.5rem;
+  line-height: 2.5rem;
+  padding: 0 0.5rem;
+  background-color: #eee;
+  border-bottom: 1px solid #ccc;
+  color: #333;
+  letter-spacing: 0.1rem;
 }
 </style>
