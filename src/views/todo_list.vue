@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       todo_list: [],
-      title:''
+      title: ""
     };
   },
   methods: {
@@ -53,8 +53,7 @@ export default {
       var todo = [];
       if (localStorage.getItem("Finish_todo")) {
         var Finish_todo = localStorage.getItem("Finish_todo").split("|");
-        console.log(Finish_todo)
-        for (var i = 0, j = 0; i <= Finish_todo.length-2; i++, j++) {
+        for (var i = 0, j = 0; i <= Finish_todo.length - 2; i++, j++) {
           var a = {};
           a.content = Finish_todo[i].split(">")[0];
           a.startTime = Finish_todo[i].split(">")[1];
@@ -84,7 +83,7 @@ export default {
       return recently_add_todo;
     },
     get_recently_fin() {
-      //获取最近完成的todo列表并返回，注意：不是全部的todo列表，只有三条数据
+      //获取最近完成的todo列表并返回
       var recently_fin_todo = [];
       if (localStorage.getItem("Finish_todo")) {
         var Finish_todo = localStorage.getItem("Finish_todo").split("|");
@@ -101,9 +100,59 @@ export default {
         }
       }
       return recently_fin_todo;
+    },
+    get_recently_del() {
+      //获取最近删除的todo列表并返回
+      var recently_del_todo = [];
+      if (localStorage.getItem("Del_todo")) {
+        var Del_todo = localStorage.getItem("Del_todo").split("|");
+        for (var i = Del_todo.length - 2, j = 0; i >= 0; i--, j++) {
+          if (i <= Del_todo.length - 12) {
+            break;
+          }
+          var a = {};
+          a.content = Del_todo[i].split(">")[0];
+          a.startTime = Del_todo[i].split(">")[1];
+          a.endTime = Del_todo[i].split(">")[2];
+          a.id = j;
+          recently_del_todo.push(a);
+        }
+      }
+      return recently_del_todo;
     }
   },
   mounted() {
+    var sUserAgent = navigator.userAgent.toLowerCase();
+    var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+    var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+    var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+    var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+    var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+    var bIsAndroid = sUserAgent.match(/android/i) == "android";
+    var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+    var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+    if (
+      bIsIpad ||
+      bIsIphoneOs ||
+      bIsMidp ||
+      bIsUc7 ||
+      bIsUc ||
+      bIsAndroid ||
+      bIsCE ||
+      bIsWM
+    ) {
+      document.addEventListener("plusready", function() {
+        // 注册返回按键事件
+        plus.key.addEventListener(
+          "backbutton",
+          function() {
+            // 事件处理
+            window.history.back();
+          },
+          false
+        );
+      });
+    }
     function getKey(name) {
       var reg = new RegExp("(^|&|\\?)" + name + "=([^&|\\?]*)");
       var r = window.location.search.substr(1).match(reg);
@@ -115,19 +164,23 @@ export default {
     switch (getKey("name")) {
       case "Agency_todo":
         this.todo_list = this.get_Agency_todo();
-        this.title="待办任务";
+        this.title = "待办任务";
         break;
       case "Finish_todo":
-        this.todo_list=this.get_finish_todo();
-        this.title="已完成任务";
+        this.todo_list = this.get_finish_todo();
+        this.title = "已完成任务";
         break;
       case "recently_add":
         this.todo_list = this.get_recently_add();
-        this.title="最近添加任务";
+        this.title = "最近添加任务";
         break;
       case "recently_fin":
         this.todo_list = this.get_recently_fin();
-        this.title="最近完成任务";
+        this.title = "最近完成任务";
+        break;
+      case "recently_del":
+        this.todo_list = this.get_recently_del();
+        this.title = "最近删除任务";
         break;
       default:
         break;

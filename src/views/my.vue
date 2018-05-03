@@ -11,10 +11,10 @@
         <ul class="todo_list">
             <li data-id='1' @click="onSkip">待办任务</li>
             <li data-id='2' @click="onSkip">已完成任务</li>
-            <li data-id='3'>已删除任务</li>
+            <!-- <li data-id='3'>已删除任务</li> -->
             <li data-id='4' @click="onSkip">最近添加任务</li>
             <li data-id='5' @click="onSkip">最近完成任务</li>
-            <li data-id='6'>最近删除任务</li>
+            <li data-id='6' @click="onSkip">最近删除任务</li>
         </ul>
       </div>
     <router-view/>
@@ -65,6 +65,12 @@ export default {
           this.$router.push({
             path: "/my/Todo_list",
             query: { name: "recently_fin" }
+          });
+          break;
+        case "6":
+          this.$router.push({
+            path: "/my/Todo_list",
+            query: { name: "recently_del" }
           });
           break;
         default:

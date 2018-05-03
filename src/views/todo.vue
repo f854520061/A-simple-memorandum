@@ -35,10 +35,10 @@
             <img src="../assets/del.png"/>
             <span @click="launch">最近删除</span>
             <ul>
-              <li>1</li>
-              <li>1</li>
-              <li>我奥斯卡里堆满了我妈克里斯没处理完我哦爱死你了库存立刻马上没得嘛</li>
+              <li v-for="t in recently_del_todo" :key="t.id" :data-id="t.id" data-type="recently_del">{{t.content}}</li>
+              <router-link to="/my/Todo_list?name=recently_del">
               <li>更多 ></li>
+              </router-link>
             </ul>
           </div>
         </div>
@@ -53,10 +53,10 @@ export default {
     return {
       recently_add_todo: this.get_recently_add(),
       recently_fin_todo: this.get_recently_fin(),
+      recently_del_todo: this.get_recently_del(),
       a_li: 0,
       f_li: 0,
-      d_li: 0,
-      li: 0
+      d_li: 0
     };
   },
   mounted() {
@@ -71,6 +71,11 @@ export default {
             var todo_list = this.get_Agency_todo();
             var todo_id = todo_list.length - 1 - todo.dataset.id; //需要编辑的todo id
             this.completeTodo(todo_list, todo_id);
+            break;
+          case "recently_fin":
+            var todo_list = this.get_Finish_todo();
+            var todo_id = todo_list.length - 1 - todo.dataset.id;
+            this.delTodo(todo_list, todo_id);
             break;
           default:
             break;
@@ -128,32 +133,66 @@ export default {
     }
   },
   beforeUpdate() {
-    var li = document.getElementsByTagName("li");
     var a_li = document.getElementsByTagName("ul")[0].children; //添加列表
     var f_li = document.getElementsByTagName("ul")[1].children; //完成列表
     var d_li = document.getElementsByTagName("ul")[2].children; //删除列表
-    this.li = li.length;
     this.a_li = a_li.length;
     this.f_li = f_li.length;
     this.d_li = d_li.length;
   },
   updated() {
-    var li = document.getElementsByTagName("li");
-    var len = li.length - this.li;
-    if (len > 0) {
-      //增加了li元素，需要重新添加滑动监听
-      var a_li = document.getElementsByTagName("ul")[0].children;
-      var f_li = document.getElementsByTagName("ul")[1].children;
-      var d_li = document.getElementsByTagName("ul")[2].children;
-      if (this.a_li != 4) {
-        let todo = a_li[this.a_li - 1];
-        //重新添加滑动监听
+    var a=document.getElementsByTagName("ul")[0];
+    var f=document.getElementsByTagName("ul")[1];
+    var d=document.getElementsByTagName("ul")[2];
+    var a_li =a.children;
+    var f_li =f.children;
+    var d_li =d.children;
+    /*
+    实时计算高度
+    */
+    let a_height =
+        this.GetCurrentStyle(a, "height") == "0px"
+          ? "0px"
+          : (a.children.length*2.5+'rem');
+    a.style.height = a_height;
+
+    let f_height =
+        this.GetCurrentStyle(f, "height") == "0px"
+          ? "0px"
+          : (f.children.length*2.5+'rem');
+    f.style.height = f_height;
+
+    let d_height =
+        this.GetCurrentStyle(d, "height") == "0px"
+          ? "0px"
+          : (d.children.length*2.5+'rem');
+    d.style.height = d_height;
+    if (this.a_li != 4) {
+      let todo = a_li[this.a_li - 1];
+      //重新添加滑动监听
+      if (todo) {
         this.setEventListener(todo, () => {
           switch (todo.dataset.type) {
             case "recently_add":
               var todo_list = this.get_Agency_todo();
               var todo_id = todo_list.length - 1 - todo.dataset.id; //需要编辑的todo id
               this.completeTodo(todo_list, todo_id);
+              break;
+            default:
+              break;
+          }
+        });
+      }
+    }
+    if (this.f_li != 4) {
+      let todo = f_li[this.f_li - 1];
+      if (todo) {
+        this.setEventListener(todo, () => {
+          switch (todo.dataset.type) {
+            case "recently_fin":
+              var todo_list = this.get_Finish_todo();
+              var todo_id = todo_list.length - 1 - todo.dataset.id; //需要编辑的todo id
+              this.delTodo(todo_list, todo_id);
               break;
             default:
               break;
@@ -243,9 +282,10 @@ export default {
       );
     },
     launch(e) {
+      var h=e.target.parentNode.lastChild.children.length*2.5+'rem';
       let height =
         this.GetCurrentStyle(e.target.parentNode.lastChild, "height") == "0px"
-          ? "10rem"
+          ? h
           : "0px";
       e.target.parentNode.lastChild.style.height = height;
     },
@@ -275,6 +315,21 @@ export default {
         }
       }
       return Agency_todo_list;
+    },
+    get_Finish_todo() {
+      var recently_fin_todo = [];
+      if (localStorage.getItem("Finish_todo")) {
+        var Finish_todo = localStorage.getItem("Finish_todo").split("|");
+        for (var i = 0, j = 0; i <= Finish_todo.length - 2; i++, j++) {
+          var a = {};
+          a.content = Finish_todo[i].split(">")[0];
+          a.startTime = Finish_todo[i].split(">")[1];
+          a.endTime = Finish_todo[i].split(">")[2];
+          a.id = j;
+          recently_fin_todo.push(a);
+        }
+      }
+      return recently_fin_todo;
     },
     get_recently_add() {
       //获取最近添加的todo列表并返回，注意：不是全部的todo列表，只有三条数据
@@ -313,6 +368,25 @@ export default {
       }
       return recently_fin_todo;
     },
+    get_recently_del() {
+      //获取最近删除的todo列表并返回
+      var recently_del_todo = [];
+      if (localStorage.getItem("Del_todo")) {
+        var Del_todo = localStorage.getItem("Del_todo").split("|");
+        for (var i = Del_todo.length - 2, j = 0; i >= 0; i--, j++) {
+          if (i <= Del_todo.length - 5) {
+            break;
+          }
+          var a = {};
+          a.content = Del_todo[i].split(">")[0];
+          a.startTime = Del_todo[i].split(">")[1];
+          a.endTime = Del_todo[i].split(">")[2];
+          a.id = j;
+          recently_del_todo.push(a);
+        }
+      }
+      return recently_del_todo;
+    },
     addTodo(todo) {
       //添加代办todo
       var oldTodo =
@@ -347,14 +421,50 @@ export default {
         recently_fin = fin_todo;
       }
       localStorage.setItem("Finish_todo", recently_fin);
-      this.recently_fin_todo = this.get_recently_fin();
       todo_list.splice(todo_id, 1);
       var str = "";
       for (var m = 0; m < todo_list.length; m++) {
         str += todo_list[m].content + ">" + todo_list[m].startTime + "|";
       }
       localStorage.setItem("Agency_todo", str);
+      this.recently_fin_todo = this.get_recently_fin();
       this.recently_add_todo = this.get_recently_add();
+    },
+    delTodo(todo_list, todo_id) {
+      //删除todo
+      var del_todo =
+        todo_list[todo_id].content +
+        ">" +
+        todo_list[todo_id].startTime +
+        ">" +
+        (todo_list[todo_id].endTime ? todo_list[todo_id].endTime : "") +
+        "|";
+      var recently_del = localStorage.getItem("Del_todo");
+      if (recently_del) {
+        recently_del += del_todo;
+      } else {
+        recently_del = del_todo;
+      }
+      var arr=recently_del.split('>');
+      if(arr.length>11){
+        var d=recently_del.substring(0,recently_del.indexOf('|')+1);
+        recently_del=recently_del.replace(d,'');
+      }
+      localStorage.setItem("Del_todo", recently_del);
+      todo_list.splice(todo_id, 1);
+      var str = "";
+      for (var m = 0; m < todo_list.length; m++) {
+        str +=
+          todo_list[m].content +
+          ">" +
+          todo_list[m].startTime +
+          ">" +
+          todo_list[m].endTime +
+          "|";
+      }
+      localStorage.setItem("Finish_todo", str);
+      this.recently_del_todo = this.get_recently_del();
+      this.recently_fin_todo = this.get_recently_fin();
     }
   },
   computed: {}
@@ -495,7 +605,7 @@ export default {
   width: 100%;
   transition: all 0.5s ease-in-out;
   overflow: hidden;
-  height: 10rem;
+  height: 0;
 }
 
 .recently_todo_list > div > ul a {

@@ -21,17 +21,57 @@ export default {
   name: "App",
   data() {
     return {
-      isShow:true,
+      isShow: true
     };
   },
   mounted() {
-    this.$router.push('/');
+    var sUserAgent = navigator.userAgent.toLowerCase();
+    var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
+    var bIsIphoneOs = sUserAgent.match(/iphone os/i) == "iphone os";
+    var bIsMidp = sUserAgent.match(/midp/i) == "midp";
+    var bIsUc7 = sUserAgent.match(/rv:1.2.3.4/i) == "rv:1.2.3.4";
+    var bIsUc = sUserAgent.match(/ucweb/i) == "ucweb";
+    var bIsAndroid = sUserAgent.match(/android/i) == "android";
+    var bIsCE = sUserAgent.match(/windows ce/i) == "windows ce";
+    var bIsWM = sUserAgent.match(/windows mobile/i) == "windows mobile";
+    if (
+      bIsIpad ||
+      bIsIphoneOs ||
+      bIsMidp ||
+      bIsUc7 ||
+      bIsUc ||
+      bIsAndroid ||
+      bIsCE ||
+      bIsWM
+    ) {
+      document.addEventListener("plusready", function() {
+        // 注册返回按键事件
+        plus.key.addEventListener(
+          "backbutton",
+          function() {
+            // 事件处理
+            plus.nativeUI.confirm(
+              "退出程序？",
+              function(event) {
+                if (event.index) {
+                  plus.runtime.quit();
+                }
+              },
+              null,
+              ["取消", "确定"]
+            );
+          },
+          false
+        );
+      });
+    }
+    this.$router.push("/");
   },
-  updated(){
-    if(location.href.indexOf('/my/Todo_list')>=0){
-      this.isShow=false;
-    }else{
-      this.isShow=true;
+  updated() {
+    if (location.href.indexOf("/my/Todo_list") >= 0) {
+      this.isShow = false;
+    } else {
+      this.isShow = true;
     }
   },
   methods: {
@@ -55,7 +95,7 @@ export default {
         default:
           break;
       }
-    },
+    }
   }
 };
 </script>
