@@ -1,6 +1,6 @@
 <template>
   <div>
-      <div class="top_title">
+      <div v-if="isShow" class="top_title">
         <img src="../assets/back.png" @click="onBack" />
           <span class="title_1">
               {{title}}
@@ -9,14 +9,15 @@
               ——保存一个月以内添加的任务
           </span> -->
       </div>
-      <div class="content">
+      <div v-if="isShow" class="content">
         <ul>
-          <li v-for="t in todo_list" :key="t.id">{{t.content}}
+          <li @click="onTab" v-for="t in todo_list" :key="t.id" :data-id="t.id">{{t.content}}
             <span v-if="!t.endTime">{{t.startTime}}</span>
             <span v-else>{{t.startTime+' — '+t.endTime}}</span>
           </li>
         </ul>
       </div>
+      <router-view/>
   </div>
 </template>
 
@@ -26,10 +27,18 @@ export default {
   data() {
     return {
       todo_list: [],
-      title: ""
+      title: "",
+      isShow:true
     };
   },
   methods: {
+    onTab(e){
+      var id=e.target.dataset.id?e.target.dataset.id:e.target.offsetParent.dataset.id;
+      this.$router.push({
+        path:'/my/Todo_list/Todo_detail',
+        query:{name:'recently_del',id:id}
+      })
+    },
     onBack() {
       this.$router.back(-1);
     },
@@ -186,7 +195,13 @@ export default {
         break;
     }
   },
-  updated() {}
+  updated() {
+    if (location.href.indexOf("/my/Todo_list/Todo_detail") >= 0) {
+      this.isShow = false;
+    } else {
+      this.isShow = true;
+    }
+  }
 };
 </script>
 
