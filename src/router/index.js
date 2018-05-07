@@ -24,6 +24,9 @@ export default new Router({
           path:'Todo_list',
           name:'Todo_list',
           component:Todo_list,
+          meta:{
+            keepAlive: false
+          },
           children:[
             {
               path:'Todo_detail',

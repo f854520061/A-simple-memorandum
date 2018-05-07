@@ -22,56 +22,29 @@
 </template>
 
 <script>
+import Tool from "@/assets/JS/Tool.js";
 export default {
   name: "Recently_add",
   data() {
     return {
       todo_list: [],
       title: "",
-      isShow:true
+      isShow: true
     };
   },
   methods: {
-    onTab(e){
-      var id=e.target.dataset.id?e.target.dataset.id:e.target.offsetParent.dataset.id;
+    onTab(e) {
+      var id = e.target.dataset.id
+        ? e.target.dataset.id
+        : e.target.offsetParent.dataset.id;
+      var name = Tool.getKey("name");
       this.$router.push({
-        path:'/my/Todo_list/Todo_detail',
-        query:{name:'recently_del',id:id}
-      })
+        path: "/my/Todo_list/Todo_detail",
+        query: { name: name, id: id }
+      });
     },
     onBack() {
       this.$router.back(-1);
-    },
-    get_Agency_todo() {
-      //获取代办todo列表并返回
-      var todo = [];
-      if (localStorage.getItem("Agency_todo")) {
-        var Agency_todo = localStorage.getItem("Agency_todo").split("|");
-        for (var i = 0, j = 0; i <= Agency_todo.length - 2; i++, j++) {
-          var a = {};
-          a.content = Agency_todo[i].split(">")[0];
-          a.startTime = Agency_todo[i].split(">")[1];
-          a.id = j;
-          todo.push(a);
-        }
-      }
-      return todo;
-    },
-    get_finish_todo() {
-      //获取已完成todo列表并返回
-      var todo = [];
-      if (localStorage.getItem("Finish_todo")) {
-        var Finish_todo = localStorage.getItem("Finish_todo").split("|");
-        for (var i = 0, j = 0; i <= Finish_todo.length - 2; i++, j++) {
-          var a = {};
-          a.content = Finish_todo[i].split(">")[0];
-          a.startTime = Finish_todo[i].split(">")[1];
-          a.endTime = Finish_todo[i].split(">")[2];
-          a.id = j;
-          todo.push(a);
-        }
-      }
-      return todo;
     },
     get_recently_add() {
       //获取最近添加的todo列表并返回
@@ -162,21 +135,13 @@ export default {
         );
       });
     }
-    function getKey(name) {
-      var reg = new RegExp("(^|&|\\?)" + name + "=([^&|\\?]*)");
-      var r = window.location.search.substr(1).match(reg);
-      if (r != null) {
-        return unescape(r[2]);
-      }
-      return null;
-    }
-    switch (getKey("name")) {
+    switch (Tool.getKey("name")) {
       case "Agency_todo":
-        this.todo_list = this.get_Agency_todo();
+        this.todo_list = Tool.get_Agency_todo();
         this.title = "待办任务";
         break;
       case "Finish_todo":
-        this.todo_list = this.get_finish_todo();
+        this.todo_list = Tool.get_Finish_todo();
         this.title = "已完成任务";
         break;
       case "recently_add":
@@ -255,6 +220,9 @@ export default {
   font-size: 1.5rem;
   padding-left: 0.8rem;
   line-height: 3.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .content > ul > li > span {
   position: absolute;

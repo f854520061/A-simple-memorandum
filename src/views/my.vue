@@ -17,7 +17,7 @@
             <li data-id='6' @click="onSkip">最近删除任务</li>
         </ul>
       </div>
-    <router-view/>
+      <router-view/>
   </div>
 </template>
 

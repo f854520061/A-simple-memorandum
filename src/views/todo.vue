@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import Tool from '@/assets/JS/Tool.js';
 export default {
   name: "todo",
   data() {
@@ -65,21 +66,23 @@ export default {
 
     for (var i = 0; i < li.length; i++) {
       let todo = li[i];
-      this.setEventListener(li[i], () => {
+      Tool.setEventListener(li[i], 'all',() => {
         switch (todo.dataset.type) {
           case "recently_add":
-            var todo_list = this.get_Agency_todo();
+            var todo_list = Tool.get_Agency_todo();
             var todo_id = todo_list.length - 1 - todo.dataset.id; //需要编辑的todo id
-            this.completeTodo(todo_list, todo_id);
+            Tool.complateTodo(todo_list, todo_id,this);
             break;
           case "recently_fin":
-            var todo_list = this.get_Finish_todo();
+            var todo_list = Tool.get_Finish_todo();
             var todo_id = todo_list.length - 1 - todo.dataset.id;
-            this.delTodo(todo_list, todo_id);
+            Tool.delTodo(todo_list, todo_id,this);
             break;
           default:
             break;
         }
+      },()=>{
+
       });
     }
 
@@ -103,7 +106,7 @@ export default {
       bIsWM
     ) {
       //移动端
-      this.setEventListener(input, () => {
+      Tool.setEventListener(input,'all', () => {
         var Input_Dom = document.getElementsByClassName("entry_text")[0];
         if (Input_Dom.value) {
           //判断Input是否有值
@@ -116,11 +119,11 @@ export default {
               "-" +
               d.getDate() +
               " " +
-              this.formatTime(d.getHours()) +
+              Tool.formatTime(d.getHours()) +
               ":" +
-              this.formatTime(d.getMinutes()) +
+              Tool.formatTime(d.getMinutes()) +
               ":" +
-              this.formatTime(d.getSeconds()); //设置新增代办todo开始时间
+              Tool.formatTime(d.getSeconds()); //设置新增代办todo开始时间
             var nowTodo = Input_Dom.value + ">" + nowTime; //用>做分隔，格式为：todo>开始时间
             this.addTodo(nowTodo);
             reslove(nowTodo);
@@ -128,7 +131,9 @@ export default {
             Input_Dom.value = "";
           });
         }
-      });
+      },()=>[
+
+      ]);
     } else {
     }
   },
@@ -171,116 +176,41 @@ export default {
       let todo = a_li[this.a_li - 1];
       //重新添加滑动监听
       if (todo) {
-        this.setEventListener(todo, () => {
+        Tool.setEventListener(todo,'all', () => {
           switch (todo.dataset.type) {
             case "recently_add":
-              var todo_list = this.get_Agency_todo();
+              var todo_list = Tool.get_Agency_todo();
               var todo_id = todo_list.length - 1 - todo.dataset.id; //需要编辑的todo id
-              this.completeTodo(todo_list, todo_id);
+              Tool.complateTodo(todo_list, todo_id,this);
               break;
             default:
               break;
           }
-        });
+        },()=>[
+
+        ]);
       }
     }
     if (this.f_li != 4) {
       let todo = f_li[this.f_li - 1];
       if (todo) {
-        this.setEventListener(todo, () => {
+        Tool.setEventListener(todo, 'all',() => {
           switch (todo.dataset.type) {
             case "recently_fin":
-              var todo_list = this.get_Finish_todo();
+              var todo_list = Tool.get_Finish_todo();
               var todo_id = todo_list.length - 1 - todo.dataset.id; //需要编辑的todo id
-              this.delTodo(todo_list, todo_id);
+              Tool.delTodo(todo_list, todo_id,this);
               break;
             default:
               break;
           }
+        },()=>{
+
         });
       }
     }
   },
   methods: {
-    formatTime(time) {
-      //时间格式化
-      if (time < 10) {
-        return "0" + time;
-      }
-      return "" + time;
-    },
-    setEventListener(dom, callback) {
-      //为指定元素添加监听
-      function GetSlideDirection(startX, startY, endX, endY) {
-        var dy = startY - endY;
-        var dx = endX - startX;
-        var result = 0;
-        //如果滑动距离太短
-        if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
-          return result;
-        }
-        var angle = GetSlideAngle(dx, dy);
-        if (angle >= -45 && angle < 45) {
-          result = 4;
-        } else if (angle >= 45 && angle < 135) {
-          result = 1;
-        } else if (angle >= -135 && angle < -45) {
-          result = 2;
-        } else if (
-          (angle >= 135 && angle <= 180) ||
-          (angle >= -180 && angle < -135)
-        ) {
-          result = 3;
-        }
-        return result;
-      }
-      function GetSlideAngle(dx, dy) {
-        return Math.atan2(dy, dx) * 180 / Math.PI;
-      }
-      //为指定Dom元素添加监听事件
-      var startX, startY;
-      dom.addEventListener(
-        "touchstart",
-        ev => {
-          // ev.preventDefault();
-          startX = ev.touches[0].pageX;
-          startY = ev.touches[0].pageY;
-        },
-        false
-      );
-      dom.addEventListener(
-        "touchend",
-        ev => {
-          // ev.preventDefault();
-          var endX, endY;
-          endX = ev.changedTouches[0].pageX;
-          endY = ev.changedTouches[0].pageY;
-          var direction = GetSlideDirection(startX, startY, endX, endY);
-          //返回角度
-          //根据起点和终点返回方向 1：向上，2：向下，3：向左，4：向右,0：未滑动
-          //滑动处理
-          //判断客户端为PC还是移动端
-          switch (direction) {
-            case 0:
-              break;
-            case 1:
-              // console.log("向上");
-              break;
-            case 2:
-              // console.log("向下");
-              break;
-            case 3:
-              // console.log("向左");
-              break;
-            case 4:
-              callback();
-              break;
-            default:
-          }
-        },
-        false
-      );
-    },
     launch(e) {
       var h=e.target.parentNode.lastChild.children.length*2.5+'rem';
       let height =
@@ -300,36 +230,6 @@ export default {
         return document.defaultView.getComputedStyle(obj, null)[prop];
       }
       return null;
-    },
-    get_Agency_todo() {
-      //获取所有的代办事件，这里获取到的代办事件是按正常顺序获取的
-      var Agency_todo_list = [];
-      if (localStorage.getItem("Agency_todo")) {
-        var Agency_todo = localStorage.getItem("Agency_todo").split("|");
-        for (var i = 0, j = 0; i <= Agency_todo.length - 2; i++, j++) {
-          var b = {};
-          b.content = Agency_todo[i].split(">")[0];
-          b.startTime = Agency_todo[i].split(">")[1];
-          b.id = j;
-          Agency_todo_list.push(b);
-        }
-      }
-      return Agency_todo_list;
-    },
-    get_Finish_todo() {
-      var recently_fin_todo = [];
-      if (localStorage.getItem("Finish_todo")) {
-        var Finish_todo = localStorage.getItem("Finish_todo").split("|");
-        for (var i = 0, j = 0; i <= Finish_todo.length - 2; i++, j++) {
-          var a = {};
-          a.content = Finish_todo[i].split(">")[0];
-          a.startTime = Finish_todo[i].split(">")[1];
-          a.endTime = Finish_todo[i].split(">")[2];
-          a.id = j;
-          recently_fin_todo.push(a);
-        }
-      }
-      return recently_fin_todo;
     },
     get_recently_add() {
       //获取最近添加的todo列表并返回，注意：不是全部的todo列表，只有三条数据
@@ -396,76 +296,6 @@ export default {
       localStorage.setItem("Agency_todo", oldTodo + todo + "|");
       this.recently_add_todo = this.get_recently_add();
     },
-    completeTodo(todo_list, todo_id) {
-      //完成待办todo
-      var fin_todo =
-        todo_list[todo_id].content + ">" + todo_list[todo_id].startTime;
-      var d = new Date();
-      var endTime =
-        d.getFullYear() +
-        "-" +
-        (parseInt(d.getMonth()) + 1) +
-        "-" +
-        d.getDate() +
-        " " +
-        this.formatTime(d.getHours()) +
-        ":" +
-        this.formatTime(d.getMinutes()) +
-        ":" +
-        this.formatTime(d.getSeconds());
-      fin_todo += ">" + endTime + "|"; //格式：todo + startTime + endTime
-      var recently_fin = localStorage.getItem("Finish_todo");
-      if (recently_fin) {
-        recently_fin += fin_todo;
-      } else {
-        recently_fin = fin_todo;
-      }
-      localStorage.setItem("Finish_todo", recently_fin);
-      todo_list.splice(todo_id, 1);
-      var str = "";
-      for (var m = 0; m < todo_list.length; m++) {
-        str += todo_list[m].content + ">" + todo_list[m].startTime + "|";
-      }
-      localStorage.setItem("Agency_todo", str);
-      this.recently_fin_todo = this.get_recently_fin();
-      this.recently_add_todo = this.get_recently_add();
-    },
-    delTodo(todo_list, todo_id) {
-      //删除todo
-      var del_todo =
-        todo_list[todo_id].content +
-        ">" +
-        todo_list[todo_id].startTime +
-        ">" +
-        (todo_list[todo_id].endTime ? todo_list[todo_id].endTime : "") +
-        "|";
-      var recently_del = localStorage.getItem("Del_todo");
-      if (recently_del) {
-        recently_del += del_todo;
-      } else {
-        recently_del = del_todo;
-      }
-      var arr=recently_del.split('>');
-      if(arr.length>11){
-        var d=recently_del.substring(0,recently_del.indexOf('|')+1);
-        recently_del=recently_del.replace(d,'');
-      }
-      localStorage.setItem("Del_todo", recently_del);
-      todo_list.splice(todo_id, 1);
-      var str = "";
-      for (var m = 0; m < todo_list.length; m++) {
-        str +=
-          todo_list[m].content +
-          ">" +
-          todo_list[m].startTime +
-          ">" +
-          todo_list[m].endTime +
-          "|";
-      }
-      localStorage.setItem("Finish_todo", str);
-      this.recently_del_todo = this.get_recently_del();
-      this.recently_fin_todo = this.get_recently_fin();
-    }
   },
   computed: {}
 };
