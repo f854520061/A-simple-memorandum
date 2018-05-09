@@ -65,6 +65,7 @@ export default {
     //     );
     //   });
     // }
+    this.$router.push('/');
   },
   updated() {
     if (location.href.indexOf("/my/Todo_list") >= 0) {

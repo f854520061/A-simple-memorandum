@@ -103,6 +103,32 @@ export default {
       return recently_del_todo;
     }
   },
+  activated() {
+    switch (Tool.getKey("name")) {
+      case "Agency_todo":
+        this.todo_list = Tool.get_Agency_todo();
+        this.title = "待办任务";
+        break;
+      case "Finish_todo":
+        this.todo_list = Tool.get_Finish_todo();
+        this.title = "已完成任务";
+        break;
+      case "recently_add":
+        this.todo_list = this.get_recently_add();
+        this.title = "最近添加任务";
+        break;
+      case "recently_fin":
+        this.todo_list = this.get_recently_fin();
+        this.title = "最近完成任务";
+        break;
+      case "recently_del":
+        this.todo_list = this.get_recently_del();
+        this.title = "最近删除任务";
+        break;
+      default:
+        break;
+    }
+  },
   mounted() {
     var sUserAgent = navigator.userAgent.toLowerCase();
     var bIsIpad = sUserAgent.match(/ipad/i) == "ipad";
@@ -135,32 +161,9 @@ export default {
         );
       });
     }
-    switch (Tool.getKey("name")) {
-      case "Agency_todo":
-        this.todo_list = Tool.get_Agency_todo();
-        this.title = "待办任务";
-        break;
-      case "Finish_todo":
-        this.todo_list = Tool.get_Finish_todo();
-        this.title = "已完成任务";
-        break;
-      case "recently_add":
-        this.todo_list = this.get_recently_add();
-        this.title = "最近添加任务";
-        break;
-      case "recently_fin":
-        this.todo_list = this.get_recently_fin();
-        this.title = "最近完成任务";
-        break;
-      case "recently_del":
-        this.todo_list = this.get_recently_del();
-        this.title = "最近删除任务";
-        break;
-      default:
-        break;
-    }
   },
   updated() {
+    
     if (location.href.indexOf("/my/Todo_list/Todo_detail") >= 0) {
       this.isShow = false;
     } else {

@@ -297,7 +297,12 @@ export default {
       this.recently_add_todo = this.get_recently_add();
     },
   },
-  computed: {}
+  computed: {},
+  activated(){
+    this.recently_add_todo=this.get_recently_add();
+    this.recently_fin_todo=this.get_recently_fin();
+    this.recently_del_todo=this.get_recently_del();
+  }
 };
 </script>
 

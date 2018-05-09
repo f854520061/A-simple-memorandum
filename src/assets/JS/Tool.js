@@ -1,4 +1,101 @@
 const Tool = {
+    show_confirm(str, cancel_callback, ok_callback) {
+        //弹窗事件
+        //同时只会弹出一个框
+        if (!document.getElementsByClassName('confirm')[0]) {
+            var confirm = document.createElement('div');//提示框
+            var info = document.createElement('p');//提示信息
+            var oper_div = document.createElement('div');//操作框样式
+            var cancel_div = document.createElement('div');//取消按钮
+            var ok_div = document.createElement('div');//确认按钮
+            var body = document.getElementsByTagName('body')[0];
+            /*
+            提示信息样式
+            */
+            info.innerHTML = str;
+            info.style.textAlign = 'center';
+            info.style.letterSpacing = "0.2rem";
+            info.style.marginBottom = '5vh';
+
+            /*
+            操作框样式
+            */
+            oper_div.style.display = 'flex';
+            oper_div.style.justifyContent = 'space-around';
+            oper_div.style.width = '100%';
+
+            /*
+            取消按钮样式
+            */
+            cancel_div.style.width = '15vw';
+            cancel_div.style.height = "5vh";
+            cancel_div.innerHTML = '取消';
+            cancel_div.style.backgroundColor = '#eee';
+            cancel_div.style.textAlign = 'center';
+            cancel_div.style.lineHeight = '5vh';
+
+            /*
+            确认按钮样式
+            */
+            ok_div.style.width = '15vw';
+            ok_div.style.height = "5vh";
+            ok_div.innerHTML = '确认';
+            ok_div.style.backgroundColor = '#9ACD32';
+            ok_div.style.color = '#fff';
+            ok_div.style.textAlign = 'center';
+            ok_div.style.lineHeight = '5vh';
+
+            cancel_div.onclick = function () {
+                cancel_callback();
+                body.removeChild(document.getElementsByClassName('confirm')[0]);
+            }
+
+            ok_div.onclick = function () {
+                ok_callback();
+                body.removeChild(document.getElementsByClassName('confirm')[0]);
+            }
+
+
+
+            /*
+            提示框样式
+            */
+            confirm.style.width = '70vw';
+            confirm.style.height = 'auto';
+            confirm.style.backgroundColor = '#ccc';
+            confirm.style.position = 'absolute';
+            confirm.style.top = '40vh';
+            confirm.style.left = '15vw';
+            confirm.style.padding = '1.5rem';
+            confirm.style.boxSizing = 'border-box';
+            confirm.className = 'confirm';
+            oper_div.appendChild(cancel_div);
+            oper_div.appendChild(ok_div);
+            confirm.appendChild(info);
+            confirm.appendChild(oper_div);
+            body.appendChild(confirm);
+        }
+    },
+    del_confirm() {
+        if (document.getElementsByClassName('confirm')[0]) {
+            var body = document.getElementsByTagName('body')[0];
+            body.removeChild(document.getElementsByClassName('confirm')[0]);
+        }
+    },
+    formatTodo(arr) {
+        //将数组转化为存储数据字符串
+        var str = "";
+        if (arr.length) {
+            for (var i = 0; i <= arr.length - 1; i++) {
+                str +=
+                    (arr[i].content ? (arr[i].content + ">") : "") +
+                    (arr[i].startTime ? arr[i].startTime : "") +
+                    (arr[i].endTime ? (">" + arr[i].endTime) : "") +
+                    "|";
+            }
+        }
+        return str;
+    },
     formatTime(time) {
         //时间格式化
         if (time < 10) {
